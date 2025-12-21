@@ -24,6 +24,11 @@
         <activity
             android:name=".auth.RegisterActivity"
             android:exported="false"/>
+        <activity android:name=".pet.PetProfileActivity" />
+        <activity android:name=".pet.PetSelectActivity" />
+        <activity android:name=".pet.EditPetActivity"/>
+
+
     </application>
 
 </manifest>

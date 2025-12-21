@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <Button
+        android:id="@+id/dogBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dog" />
+
+    <Button
+        android:id="@+id/catBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cat" />
+
+    <Button
+        android:id="@+id/fishBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fish" />
+
+    <Button
+        android:id="@+id/birdBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bird" />
+
+</LinearLayout>

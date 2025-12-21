@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.petcare.R;
 import com.example.petcare.database.AppDatabase;
 import com.example.petcare.models.User;
+import com.example.petcare.utils.PasswordUtil;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -38,7 +39,9 @@ public class RegisterActivity extends AppCompatActivity {
             User user = new User();
             user.name = name.getText().toString();
             user.email = email.getText().toString();
-            user.password = password.getText().toString();
+            user.password = PasswordUtil.hashPassword(
+                    password.getText().toString()
+            );
 
             AppDatabase.getInstance(this).userDao().register(user);
             Toast.makeText(this, "Registered Successfully", Toast.LENGTH_SHORT).show();

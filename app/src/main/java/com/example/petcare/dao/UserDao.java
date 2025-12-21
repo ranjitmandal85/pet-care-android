@@ -12,9 +12,11 @@ public interface UserDao {
     @Insert
     void register(User user);
 
-    @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")
-    User login(String email, String password);
+
 
     @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
     User checkEmail(String email);
+
+    @Query("DELETE FROM users WHERE email = :email")
+    void deleteByEmail(String email);
 }
