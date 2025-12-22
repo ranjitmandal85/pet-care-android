@@ -1,37 +1,76 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="24dp"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/name"
-        android:hint="Pet Name"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <EditText
-        android:id="@+id/age"
-        android:hint="Age"
-        android:inputType="number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/petPhoto"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:contentDescription="Pet photo" />
 
-    <EditText
-        android:id="@+id/gender"
-        android:hint="Gender"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/pickImageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Image"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp" />
 
-    <EditText
-        android:id="@+id/likes"
-        android:hint="Likes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <VideoView
+            android:id="@+id/petVideo"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp" />
 
-    <Button
-        android:id="@+id/saveBtn"
-        android:text="Save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+        <Button
+            android:id="@+id/pickVideoBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Video"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/petName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pet name"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/petAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pet age"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/petGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pet gender" />
+
+        <EditText
+            android:id="@+id/petLikes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pet likes" />
+
+        <Button
+            android:id="@+id/saveBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Pet"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+</ScrollView>

@@ -13,7 +13,7 @@ import com.example.petcare.dao.PetDao;
 
 
 
-@Database(entities = {User.class, Pet.class}, version = 3)
+@Database(entities = {User.class, Pet.class}, version = 7, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase instance;

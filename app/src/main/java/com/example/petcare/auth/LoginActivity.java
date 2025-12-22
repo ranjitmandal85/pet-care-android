@@ -1,5 +1,4 @@
 package com.example.petcare.auth;
-import com.example.petcare.utils.PasswordUtil;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.petcare.R;
 import com.example.petcare.database.AppDatabase;
+import com.example.petcare.models.Pet;
 import com.example.petcare.models.User;
+import com.example.petcare.pet.HomeActivity;
 import com.example.petcare.pet.PetSelectActivity;
+import com.example.petcare.utils.PasswordUtil;
 import com.example.petcare.utils.SessionManager;
 
 public class LoginActivity extends AppCompatActivity {
@@ -44,13 +46,26 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            String hashedInput = com.example.petcare.utils.PasswordUtil.hashPassword(passwordText);
+            String hashedInput = PasswordUtil.hashPassword(passwordText);
 
             if (user.password.equals(hashedInput)) {
-                Toast.makeText(this, "Login Success", Toast.LENGTH_SHORT).show();
 
+                // ✅ Save session
                 new SessionManager(this).saveUserId(user.id);
-                startActivity(new Intent(this, PetSelectActivity.class));
+
+                // ✅ CHECK PET HERE
+                Pet pet = AppDatabase.getInstance(this)
+                        .petDao()
+                        .getPetByUserId(user.id);
+
+                if (pet != null) {
+                    // User already has pet → Home
+                    startActivity(new Intent(this, HomeActivity.class));
+                } else {
+                    // No pet → Pet selection
+                    startActivity(new Intent(this, PetSelectActivity.class));
+                }
+
                 finish();
 
             } else {
@@ -61,6 +76,5 @@ public class LoginActivity extends AppCompatActivity {
         registerBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class))
         );
-        startActivity(new Intent(LoginActivity.this, PetSelectActivity.class));
     }
 }

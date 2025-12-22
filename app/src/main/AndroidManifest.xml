@@ -26,7 +26,15 @@
             android:exported="false"/>
         <activity android:name=".pet.PetProfileActivity" />
         <activity android:name=".pet.PetSelectActivity" />
-        <activity android:name=".pet.EditPetActivity"/>
+        <activity android:name=".pet.HomeActivity" />
+        <activity android:name=".pet.EditPetActivity" />
+        <activity
+            android:name=".pet.VideoPlayerActivity"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+
+
 
 
     </application>
