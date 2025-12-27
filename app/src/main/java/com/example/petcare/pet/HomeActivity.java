@@ -5,13 +5,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
-import androidx.appcompat.widget.Toolbar;
-
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,25 +28,28 @@ import com.example.petcare.utils.SessionManager;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class HomeActivity extends AppCompatActivity {
+
+    private Spinner petSpinner;
+    private List<Pet> pets = new ArrayList<>();
+    private Pet selectedPet;
 
     private ImageView petImage;
     private TextView petName, petAge, petGender, petLikes;
     private RecyclerView videoRecycler;
 
     private final List<Uri> videoUriList = new ArrayList<>();
-
-    // 👇 this is needed for menu Edit option
-    private Pet pet;
+    private int spinnerSelectedPosition = 0; // To preserve selection on resume
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
         Toolbar toolbar = findViewById(R.id.homeToolbar);
         setSupportActionBar(toolbar);
 
+        petSpinner = findViewById(R.id.petSpinner);
         petImage = findViewById(R.id.petPhoto);
         petName = findViewById(R.id.petName);
         petAge = findViewById(R.id.petAge);
@@ -52,13 +59,17 @@ public class HomeActivity extends AppCompatActivity {
 
         videoRecycler.setLayoutManager(new GridLayoutManager(this, 2));
 
-        loadPetData();
+        loadPetList();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadPetData();
+        loadPetList();
+        // Restore previous selection if possible
+        if (pets.size() > spinnerSelectedPosition) {
+            petSpinner.setSelection(spinnerSelectedPosition);
+        }
     }
 
     // ========= MENU =========
@@ -71,21 +82,22 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        int id = item.getItemId();
-
-        if (id == R.id.menu_add_pet) {
-
+        if (item.getItemId() == R.id.menu_add_pet) {
             startActivity(new Intent(this, AddPetActivity.class));
             return true;
 
-        } else if (id == R.id.menu_edit_pet) {
+        } else if (item.getItemId() == R.id.menu_edit_pet) {
 
-            Intent editIntent = new Intent(this, EditPetActivity.class);
-            editIntent.putExtra("petId", pet.id);
-            startActivity(editIntent);
+            if (selectedPet != null) {
+                Intent editIntent = new Intent(this, EditPetActivity.class);
+                editIntent.putExtra("petId", selectedPet.id);
+                startActivity(editIntent);
+            } else {
+                Toast.makeText(this, "No pet selected", Toast.LENGTH_SHORT).show();
+            }
             return true;
 
-        } else if (id == R.id.menu_logout) {
+        } else if (item.getItemId() == R.id.menu_logout) {
 
             getSharedPreferences("MyApp", MODE_PRIVATE)
                     .edit()
@@ -102,22 +114,58 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // ========= LOAD PET =========
-    private void loadPetData() {
+    // ========= LOAD PET LIST =========
+    private void loadPetList() {
 
         int userId = new SessionManager(this).getUserId();
         if (userId == -1) return;
 
-        // ⚠️ Make sure your DAO returns ONE pet for a user
-        pet = AppDatabase.getInstance(this)
+        pets = AppDatabase.getInstance(this)
                 .petDao()
-                .getPetByUserId(userId);
+                .getPetsByUserId(userId);
 
-        if (pet == null) {
+        if (pets == null || pets.isEmpty()) {
             startActivity(new Intent(this, PetSelectActivity.class));
             finish();
             return;
         }
+
+        // Fill spinner with pet names safely
+        List<String> petNames = new ArrayList<>();
+        for (Pet p : pets) {
+            petNames.add(p.name != null ? p.name : "Unnamed Pet");
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, petNames);
+
+        petSpinner.setAdapter(adapter);
+
+        petSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                selectedPet = pets.get(position);
+                spinnerSelectedPosition = position;
+                showPet(selectedPet);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // Do nothing
+            }
+        });
+
+        // Show first pet initially if none selected
+        if (selectedPet == null && !pets.isEmpty()) {
+            selectedPet = pets.get(0);
+            showPet(selectedPet);
+        }
+    }
+
+    // ========= DISPLAY PET =========
+    private void showPet(Pet pet) {
+
+        if (pet == null) return;
 
         petName.setText(pet.name != null ? pet.name : "Pet");
         petAge.setText("Age: " + pet.age);
@@ -126,6 +174,7 @@ public class HomeActivity extends AppCompatActivity {
 
         if (pet.photoUri != null && !pet.photoUri.isEmpty()) {
             petImage.setImageURI(Uri.parse(pet.photoUri));
+        } else {
         }
 
         videoUriList.clear();
@@ -133,10 +182,14 @@ public class HomeActivity extends AppCompatActivity {
         if (pet.videoUris != null && !pet.videoUris.isEmpty()) {
             String[] videos = pet.videoUris.split(",");
             for (String v : videos) {
-                if (!v.trim().isEmpty()) videoUriList.add(Uri.parse(v));
+                if (v != null && !v.trim().isEmpty()) {
+                    videoUriList.add(Uri.parse(v));
+                }
             }
         }
 
-        videoRecycler.setAdapter(new VideoAdapter(this, videoUriList));
+        VideoAdapter adapter = new VideoAdapter(this, videoUriList);
+        videoRecycler.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 }

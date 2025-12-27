@@ -5,8 +5,9 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-
 import com.example.petcare.models.Pet;
+
+import java.util.List;
 
 @Dao
 public interface PetDao {
@@ -21,7 +22,8 @@ public interface PetDao {
     @Update
     void update(Pet pet);
 
-    @Query("SELECT * FROM pet WHERE userId = :userId LIMIT 1")
-    Pet getPetByUserId(int userId);
+    @Query("SELECT * FROM pet WHERE userId = :userId")
+    List<Pet> getPetsByUserId(int userId);
+
 
 }

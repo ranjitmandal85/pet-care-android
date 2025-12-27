@@ -12,9 +12,9 @@ import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.petcare.R;
+import com.example.petcare.dao.PetDao;
 import com.example.petcare.database.AppDatabase;
 import com.example.petcare.models.Pet;
-import com.example.petcare.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,7 @@ public class EditPetActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 100;
     private static final int PICK_VIDEO = 101;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,17 +58,28 @@ public class EditPetActivity extends AppCompatActivity {
         gender = findViewById(R.id.petGender);
         likes = findViewById(R.id.petLikes);
 
-        int userId = new SessionManager(this).getUserId();
+        // 🔹 Get petId sent from HomeActivity
+        int petId = getIntent().getIntExtra("petId", -1);
 
-        pet = AppDatabase.getInstance(this)
-                .petDao()
-                .getPetByUserId(userId);
+        if (petId == -1) {
+            Toast.makeText(this, "No pet selected", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // 🔹 Get DAO
+        PetDao dao = AppDatabase.getInstance(this).petDao();
+
+        // 🔹 Load THIS pet
+        pet = dao.getPetById(petId);
 
         if (pet == null) {
             Toast.makeText(this, "Pet not found", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+
+        // 🔁 Load existing data into UI…
 
         // 🔁 Load existing data
         name.setText(pet.name);

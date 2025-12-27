@@ -21,4 +21,5 @@ public class Pet {
 
     public String videoUris;
     public String type;
+
 }

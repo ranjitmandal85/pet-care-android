@@ -14,9 +14,16 @@
             android:id="@+id/homeToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:titleTextColor="@android:color/white"
-            app:title="PetCare" />
+            android:background="?attr/colorPrimary">
+
+            <Spinner
+                android:id="@+id/petSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown" />
+
+        </androidx.appcompat.widget.Toolbar>
+
 
         <!-- MAIN CONTENT -->
         <LinearLayout

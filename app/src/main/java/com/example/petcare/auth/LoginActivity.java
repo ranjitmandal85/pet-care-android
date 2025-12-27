@@ -17,6 +17,8 @@ import com.example.petcare.pet.PetSelectActivity;
 import com.example.petcare.utils.PasswordUtil;
 import com.example.petcare.utils.SessionManager;
 
+import java.util.List;
+
 public class LoginActivity extends AppCompatActivity {
 
     EditText email, password;
@@ -54,9 +56,9 @@ public class LoginActivity extends AppCompatActivity {
                 new SessionManager(this).saveUserId(user.id);
 
                 // ✅ CHECK PET HERE
-                Pet pet = AppDatabase.getInstance(this)
+                List<Pet> pet = AppDatabase.getInstance(this)
                         .petDao()
-                        .getPetByUserId(user.id);
+                        .getPetsByUserId(user.id);
 
                 if (pet != null) {
                     // User already has pet → Home
