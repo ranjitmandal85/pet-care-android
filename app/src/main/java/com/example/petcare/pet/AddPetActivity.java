@@ -1,5 +1,6 @@
 package com.example.petcare.pet;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,25 +39,12 @@ public class AddPetActivity extends AppCompatActivity {
         String likes = petLikesInput.getText().toString().trim();
 
         if (name.isEmpty()) {
-            petNameInput.setError("Name is required");
+            petNameInput.setError("Required");
             return;
         }
 
-        int age = 0;
-        if (!ageText.isEmpty()) {
-            try {
-                age = Integer.parseInt(ageText);
-            } catch (NumberFormatException e) {
-                petAgeInput.setError("Invalid age");
-                return;
-            }
-        }
-
+        int age = ageText.isEmpty() ? 0 : Integer.parseInt(ageText);
         int userId = new SessionManager(this).getUserId();
-        if (userId == -1) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         Pet pet = new Pet();
         pet.name = name;
@@ -64,26 +52,29 @@ public class AddPetActivity extends AppCompatActivity {
         pet.gender = gender;
         pet.likes = likes;
         pet.userId = userId;
-        pet.photoUri = "";  // Can be updated later
-        pet.videoUris = ""; // Can be updated later
-        pet.type = "";      // Optional
+        pet.photoUri = "";
+        pet.videoUris = "";
+        pet.type = "";
 
-        // Save pet in background thread
         new Thread(() -> {
-            AppDatabase.getInstance(this).petDao().insert(pet);
+            AppDatabase.getInstance(this)
+                    .petDao()
+                    .insert(pet);
 
             runOnUiThread(() -> {
                 Toast.makeText(this, "Pet saved!", Toast.LENGTH_SHORT).show();
-                // Return to HomeActivity, refresh handled in onResume()
-                finish();
+                // First-time pet added → go to HomeActivity
+                Intent home = new Intent(AddPetActivity.this, HomeActivity.class);
+                home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(home);
+                finish(); // close AddPetActivity
             });
         }).start();
     }
 
     @Override
     public void onBackPressed() {
+        // Prevent going back without saving for first-time user
         super.onBackPressed();
-        // Optionally, you can handle first-time user back press differently
-        // For example, prevent going back if no pets exist yet
     }
 }

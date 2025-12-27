@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.petcare.R;
+import com.example.petcare.auth.LoginActivity;
 import com.example.petcare.database.AppDatabase;
 import com.example.petcare.models.Pet;
 import com.example.petcare.utils.SessionManager;
@@ -39,19 +40,22 @@ public class HomeActivity extends AppCompatActivity {
     private ImageView petImage;
     private TextView petName, petAge, petGender, petLikes;
     private RecyclerView videoRecycler;
+
     private final List<Uri> videoUriList = new ArrayList<>();
     private int spinnerSelectedPosition = 0;
 
     private SessionManager session;
 
-    // Launchers for Add/Edit pet activities
+    // Launcher to start AddPetActivity
     private final ActivityResultLauncher<Intent> addPetLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            result -> loadPetList()
+            result -> loadPetList() // refresh pet list after returning
     );
+
+    // Launcher to start EditPetActivity
     private final ActivityResultLauncher<Intent> editPetLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            result -> loadPetList()
+            result -> loadPetList() // refresh pet list after returning
     );
 
     @Override
@@ -60,6 +64,11 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         session = new SessionManager(this);
+        if (!session.isLoggedIn()) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
 
         Toolbar toolbar = findViewById(R.id.homeToolbar);
         setSupportActionBar(toolbar);
@@ -79,6 +88,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Restore spinner selection
         if (pets.size() > spinnerSelectedPosition) {
             petSpinner.setSelection(spinnerSelectedPosition);
         }
@@ -126,7 +136,8 @@ public class HomeActivity extends AppCompatActivity {
                                         petSpinner.setSelection(0);
                                         showPet(selectedPet);
                                     } else {
-                                        addPetLauncher.launch(new Intent(this, AddPetActivity.class));
+                                        // Launch AddPetActivity safely for first-time after deletion
+                                        petSpinner.post(() -> addPetLauncher.launch(new Intent(this, AddPetActivity.class)));
                                     }
                                 });
                             }).start();
@@ -139,12 +150,11 @@ public class HomeActivity extends AppCompatActivity {
             return true;
 
         } else if (id == R.id.menu_logout) {
-            // Proper logout
             session.clearSession();
 
-            Intent launcher = new Intent(this, LauncherActivity.class);
-            launcher.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(launcher);
+            Intent login = new Intent(this, LoginActivity.class);
+            login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(login);
             finish();
             return true;
         }
@@ -163,8 +173,8 @@ public class HomeActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 if (pets == null || pets.isEmpty()) {
-                    // First-time user -> launch AddPetActivity
-                    addPetLauncher.launch(new Intent(this, AddPetActivity.class));
+                    // Safe first-time launch of AddPetActivity
+                    petSpinner.post(() -> addPetLauncher.launch(new Intent(this, AddPetActivity.class)));
                     return;
                 }
 
