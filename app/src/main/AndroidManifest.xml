@@ -28,6 +28,8 @@
         <activity android:name=".pet.PetSelectActivity" />
         <activity android:name=".pet.HomeActivity" />
         <activity android:name=".pet.EditPetActivity" />
+        <activity android:name=".pet.AddPetActivity"/>
+
         <activity
             android:name=".pet.VideoPlayerActivity"
             android:screenOrientation="sensor"
