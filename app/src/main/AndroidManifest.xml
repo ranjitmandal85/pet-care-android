@@ -12,7 +12,7 @@
 
         <!-- LOGIN SCREEN -->
         <activity
-            android:name=".auth.LoginActivity"
+            android:name=".pet.LauncherActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -29,6 +29,7 @@
         <activity android:name=".pet.HomeActivity" />
         <activity android:name=".pet.EditPetActivity" />
         <activity android:name=".pet.AddPetActivity"/>
+        <activity android:name=".auth.LoginActivity"/>
 
         <activity
             android:name=".pet.VideoPlayerActivity"

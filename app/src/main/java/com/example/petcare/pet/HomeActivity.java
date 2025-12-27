@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.petcare.R;
-import com.example.petcare.auth.LoginActivity;
 import com.example.petcare.database.AppDatabase;
 import com.example.petcare.models.Pet;
 import com.example.petcare.utils.SessionManager;
@@ -40,26 +39,27 @@ public class HomeActivity extends AppCompatActivity {
     private ImageView petImage;
     private TextView petName, petAge, petGender, petLikes;
     private RecyclerView videoRecycler;
-
     private final List<Uri> videoUriList = new ArrayList<>();
     private int spinnerSelectedPosition = 0;
 
-    // Launcher to start AddPetActivity
+    private SessionManager session;
+
+    // Launchers for Add/Edit pet activities
     private final ActivityResultLauncher<Intent> addPetLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            result -> loadPetList() // refresh pet list after adding
+            result -> loadPetList()
     );
-
-    // Launcher to start EditPetActivity
     private final ActivityResultLauncher<Intent> editPetLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            result -> loadPetList() // refresh pet list after editing
+            result -> loadPetList()
     );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        session = new SessionManager(this);
 
         Toolbar toolbar = findViewById(R.id.homeToolbar);
         setSupportActionBar(toolbar);
@@ -79,7 +79,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Restore spinner selection
         if (pets.size() > spinnerSelectedPosition) {
             petSpinner.setSelection(spinnerSelectedPosition);
         }
@@ -140,14 +139,12 @@ public class HomeActivity extends AppCompatActivity {
             return true;
 
         } else if (id == R.id.menu_logout) {
-            getSharedPreferences("MyApp", MODE_PRIVATE)
-                    .edit()
-                    .clear()
-                    .apply();
+            // Proper logout
+            session.clearSession();
 
-            Intent login = new Intent(this, LoginActivity.class);
-            login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(login);
+            Intent launcher = new Intent(this, LauncherActivity.class);
+            launcher.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(launcher);
             finish();
             return true;
         }
@@ -158,7 +155,7 @@ public class HomeActivity extends AppCompatActivity {
     // ========= LOAD PET LIST =========
     private void loadPetList() {
 
-        int userId = new SessionManager(this).getUserId();
+        int userId = session.getUserId();
         if (userId == -1) return;
 
         new Thread(() -> {
