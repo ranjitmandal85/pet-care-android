@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -82,12 +83,13 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == R.id.menu_add_pet) {
+        int id = item.getItemId();
+
+        if (id == R.id.menu_add_pet) {
             startActivity(new Intent(this, AddPetActivity.class));
             return true;
 
-        } else if (item.getItemId() == R.id.menu_edit_pet) {
-
+        } else if (id == R.id.menu_edit_pet) {
             if (selectedPet != null) {
                 Intent editIntent = new Intent(this, EditPetActivity.class);
                 editIntent.putExtra("petId", selectedPet.id);
@@ -97,8 +99,34 @@ public class HomeActivity extends AppCompatActivity {
             }
             return true;
 
-        } else if (item.getItemId() == R.id.menu_logout) {
+        } else if (id == R.id.menu_delete_pet) {
+            if (selectedPet != null) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Delete Pet")
+                        .setMessage("Are you sure you want to delete " + selectedPet.name + "?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Delete pet
+                            AppDatabase.getInstance(this).petDao().delete(selectedPet);
+                            Toast.makeText(this, selectedPet.name + " deleted", Toast.LENGTH_SHORT).show();
+                            // Refresh pet list
+                            loadPetList();
+                            if (!pets.isEmpty()) {
+                                selectedPet = pets.get(0);
+                                petSpinner.setSelection(0);
+                                showPet(selectedPet);
+                            } else {
+                                startActivity(new Intent(this, PetSelectActivity.class));
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                Toast.makeText(this, "No pet selected", Toast.LENGTH_SHORT).show();
+            }
+            return true;
 
+        } else if (id == R.id.menu_logout) {
             getSharedPreferences("MyApp", MODE_PRIVATE)
                     .edit()
                     .clear()
@@ -113,6 +141,7 @@ public class HomeActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
     // ========= LOAD PET LIST =========
     private void loadPetList() {

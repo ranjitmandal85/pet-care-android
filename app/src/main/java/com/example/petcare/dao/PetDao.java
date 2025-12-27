@@ -1,6 +1,7 @@
 package com.example.petcare.dao;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -24,6 +25,8 @@ public interface PetDao {
 
     @Query("SELECT * FROM pet WHERE userId = :userId")
     List<Pet> getPetsByUserId(int userId);
+    @Delete
+    void delete(Pet pet);
 
 
 }
